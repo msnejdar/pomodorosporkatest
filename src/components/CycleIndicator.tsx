@@ -1,14 +1,18 @@
 import { motion } from 'framer-motion';
 import { COLORS } from '../utils/constants';
 import { TimerMode } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
+import { Language } from '../utils/translations';
 
 interface CycleIndicatorProps {
   currentCycle: number;
   totalCycles: number;
   mode: TimerMode;
+  language?: Language;
 }
 
-export function CycleIndicator({ currentCycle, totalCycles, mode }: CycleIndicatorProps) {
+export function CycleIndicator({ currentCycle, totalCycles, mode, language = 'en' }: CycleIndicatorProps) {
+  const { t } = useTranslation(language);
   const isWork = mode === 'work';
 
   return (
@@ -18,11 +22,11 @@ export function CycleIndicator({ currentCycle, totalCycles, mode }: CycleIndicat
         <span style={{ color: isWork ? COLORS.gold : COLORS.teal }}>
           {currentCycle}
         </span>
-        <span style={{ color: COLORS.deepBlue }}>of</span>
+        <span style={{ color: COLORS.deepBlue }}>{t('of')}</span>
         <span style={{ color: COLORS.lightTeal }}>
           {totalCycles}
         </span>
-        <span style={{ color: COLORS.deepBlue }}>cycles</span>
+        <span style={{ color: COLORS.deepBlue }}>{t('cycles')}</span>
       </div>
 
       {/* Progress dots */}

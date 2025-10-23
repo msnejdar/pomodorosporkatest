@@ -166,8 +166,8 @@ function App() {
         <div className="w-full max-w-6xl mx-auto">
           {/* Timer */}
           <div className="flex flex-col items-center">
-            <Timer mode={mode} timeLeft={timeLeft} duration={totalDuration} />
-            <CycleIndicator currentCycle={currentCycle} totalCycles={totalCycles} mode={mode} />
+            <Timer mode={mode} timeLeft={timeLeft} duration={totalDuration} language={settings.language} />
+            <CycleIndicator currentCycle={currentCycle} totalCycles={totalCycles} mode={mode} language={settings.language} />
             <Controls
               mode={mode}
               status={status}
@@ -175,12 +175,13 @@ function App() {
               onPause={pause}
               onReset={reset}
               onSettings={() => setShowSettings(true)}
+              language={settings.language}
             />
-            <KeyboardHints />
+            <KeyboardHints language={settings.language} />
           </div>
 
           {/* Stats */}
-          <Stats stats={stats} onReset={handleResetStats} />
+          <Stats stats={stats} onReset={handleResetStats} language={settings.language} />
         </div>
       </div>
 
@@ -195,7 +196,7 @@ function App() {
       {/* Celebrations */}
       <AnimatePresence>
         {showConfetti && <Confetti active={showConfetti} onComplete={() => setShowConfetti(false)} />}
-        {showSun && <AnimatedSun show={showSun} />}
+        {showSun && <AnimatedSun show={showSun} language={settings.language} />}
       </AnimatePresence>
     </div>
   );

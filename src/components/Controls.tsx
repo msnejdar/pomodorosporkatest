@@ -2,6 +2,8 @@ import { motion } from 'framer-motion';
 import { Play, Pause, RotateCcw, Settings } from 'lucide-react';
 import { TimerMode, TimerStatus } from '../types';
 import { COLORS } from '../utils/constants';
+import { useTranslation } from '../hooks/useTranslation';
+import { Language } from '../utils/translations';
 
 interface ControlsProps {
   mode: TimerMode;
@@ -10,9 +12,11 @@ interface ControlsProps {
   onPause: () => void;
   onReset: () => void;
   onSettings: () => void;
+  language?: Language;
 }
 
-export function Controls({ mode, status, onStart, onPause, onReset, onSettings }: ControlsProps) {
+export function Controls({ mode, status, onStart, onPause, onReset, onSettings, language = 'en' }: ControlsProps) {
+  const { t } = useTranslation(language);
   const isRunning = status === 'running';
   const isWork = mode === 'work';
 
@@ -45,12 +49,12 @@ export function Controls({ mode, status, onStart, onPause, onReset, onSettings }
           {isRunning ? (
             <>
               <Pause size={20} style={{ color: isWork ? COLORS.teal : COLORS.darkOrange }} />
-              <span>Pause</span>
+              <span>{t('pause')}</span>
             </>
           ) : (
             <>
               <Play size={20} style={{ color: isWork ? COLORS.darkTeal : COLORS.gold }} />
-              <span>Start</span>
+              <span>{t('start')}</span>
             </>
           )}
         </div>
@@ -87,7 +91,7 @@ export function Controls({ mode, status, onStart, onPause, onReset, onSettings }
           }}
         >
           <RotateCcw size={20} style={{ color: COLORS.darkRed }} />
-          <span>Reset</span>
+          <span>{t('reset')}</span>
         </div>
 
         {/* Hover glow effect */}

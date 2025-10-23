@@ -2,17 +2,22 @@ import { motion } from 'framer-motion';
 import { CheckCircle, Clock, Flame, Repeat } from 'lucide-react';
 import { Stats as StatsType } from '../types';
 import { COLORS } from '../utils/constants';
+import { useTranslation } from '../hooks/useTranslation';
+import { Language } from '../utils/translations';
 
 interface StatsProps {
   stats: StatsType;
   onReset: () => void;
+  language?: Language;
 }
 
-export function Stats({ stats, onReset }: StatsProps) {
+export function Stats({ stats, onReset, language = 'en' }: StatsProps) {
+  const { t } = useTranslation(language);
+
   const statCards = [
     {
       icon: CheckCircle,
-      label: 'Pomodoros Today',
+      label: t('pomodorosToday'),
       value: stats.pomodorosToday,
       borderColor: COLORS.darkTeal,
       iconColor: COLORS.teal,
@@ -20,7 +25,7 @@ export function Stats({ stats, onReset }: StatsProps) {
     },
     {
       icon: Clock,
-      label: 'Total Focus Time',
+      label: t('totalFocusTime'),
       value: `${stats.totalFocusTime}m`,
       borderColor: COLORS.gold,
       iconColor: COLORS.darkOrange,
@@ -28,7 +33,7 @@ export function Stats({ stats, onReset }: StatsProps) {
     },
     {
       icon: Flame,
-      label: 'Current Streak',
+      label: t('currentStreak'),
       value: `${stats.currentStreak}d`,
       borderColor: COLORS.rust,
       iconColor: COLORS.darkRed,
@@ -36,7 +41,7 @@ export function Stats({ stats, onReset }: StatsProps) {
     },
     {
       icon: Repeat,
-      label: 'Cycles Completed',
+      label: t('cyclesCompleted'),
       value: stats.cyclesCompleted,
       borderColor: COLORS.lightTeal,
       iconColor: COLORS.teal,
@@ -100,7 +105,7 @@ export function Stats({ stats, onReset }: StatsProps) {
       >
         <button
           onClick={() => {
-            if (window.confirm('Are you sure you want to reset all statistics? This cannot be undone.')) {
+            if (window.confirm(t('resetConfirm'))) {
               onReset();
             }
           }}
@@ -111,7 +116,7 @@ export function Stats({ stats, onReset }: StatsProps) {
             color: COLORS.burgundy,
           }}
         >
-          Reset Statistics
+          {t('resetStatistics')}
         </button>
       </motion.div>
     </div>

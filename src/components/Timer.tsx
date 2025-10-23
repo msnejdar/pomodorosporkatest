@@ -1,14 +1,18 @@
 import { motion } from 'framer-motion';
 import { TimerMode } from '../types';
 import { COLORS } from '../utils/constants';
+import { useTranslation } from '../hooks/useTranslation';
+import { Language } from '../utils/translations';
 
 interface TimerProps {
   mode: TimerMode;
   timeLeft: number; // in seconds
   duration: number; // total duration in seconds
+  language?: Language;
 }
 
-export function Timer({ mode, timeLeft, duration }: TimerProps) {
+export function Timer({ mode, timeLeft, duration, language = 'en' }: TimerProps) {
+  const { t } = useTranslation(language);
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
   const progress = duration > 0 ? (duration - timeLeft) / duration : 0;
@@ -154,7 +158,7 @@ export function Timer({ mode, timeLeft, duration }: TimerProps) {
                 className="text-lg font-medium"
                 style={{ color: isWork ? COLORS.darkTeal : COLORS.gold }}
               >
-                {isWork ? 'Focus Time' : 'Break Time'}
+                {isWork ? t('focusTime') : t('breakTime')}
               </span>
               <span className="text-xl">
                 {isWork ? '☕' : '🌴'}

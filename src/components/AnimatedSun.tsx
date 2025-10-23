@@ -1,11 +1,16 @@
 import { motion } from 'framer-motion';
 import { COLORS } from '../utils/constants';
+import { useTranslation } from '../hooks/useTranslation';
+import { Language } from '../utils/translations';
 
 interface AnimatedSunProps {
   show: boolean;
+  language?: Language;
 }
 
-export function AnimatedSun({ show }: AnimatedSunProps) {
+export function AnimatedSun({ show, language = 'en' }: AnimatedSunProps) {
+  const { t } = useTranslation(language);
+
   if (!show) return null;
 
   const rayCount = 16;
@@ -157,7 +162,7 @@ export function AnimatedSun({ show }: AnimatedSunProps) {
               backgroundClip: 'text',
             }}
           >
-            Great work! 🎉
+            {t('greatWork')} 🎉
           </div>
         </motion.div>
       </div>

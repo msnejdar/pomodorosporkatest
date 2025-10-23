@@ -1,11 +1,19 @@
 import { motion } from 'framer-motion';
 import { COLORS } from '../utils/constants';
+import { useTranslation } from '../hooks/useTranslation';
+import { Language } from '../utils/translations';
 
-export function KeyboardHints() {
+interface KeyboardHintsProps {
+  language?: Language;
+}
+
+export function KeyboardHints({ language = 'en' }: KeyboardHintsProps) {
+  const { t } = useTranslation(language);
+
   const hints = [
-    { key: 'Space', action: 'Start/Pause' },
-    { key: 'R', action: 'Reset' },
-    { key: 'S', action: 'Settings' },
+    { key: 'Space', action: t('startPause') },
+    { key: 'R', action: t('reset') },
+    { key: 'S', action: t('settings') },
   ];
 
   return (
