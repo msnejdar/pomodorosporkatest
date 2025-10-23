@@ -241,11 +241,38 @@ export function Settings({ isOpen, onClose, settings, onUpdateSettings }: Settin
                 >
                   🎨 Appearance
                 </h3>
+
+                {/* Dark Mode Toggle */}
+                <div className="flex items-center justify-between p-4 rounded-xl mb-4" style={{ backgroundColor: `${COLORS.beige}80` }}>
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{settings.darkMode ? '🌙' : '☀️'}</span>
+                    <span className="font-medium" style={{ color: COLORS.deepBlue }}>
+                      Dark Mode
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => onUpdateSettings({ darkMode: !settings.darkMode })}
+                    className="relative w-14 h-8 rounded-full transition-colors duration-300"
+                    style={{
+                      backgroundColor: settings.darkMode ? COLORS.darkTeal : COLORS.lightTeal,
+                    }}
+                  >
+                    <motion.div
+                      className="absolute top-1 w-6 h-6 rounded-full"
+                      style={{ backgroundColor: COLORS.beige }}
+                      animate={{
+                        left: settings.darkMode ? '28px' : '4px',
+                      }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    />
+                  </button>
+                </div>
+
                 <div
                   className="p-4 rounded-xl text-sm"
                   style={{ backgroundColor: `${COLORS.lightTeal}20`, color: COLORS.deepBlue }}
                 >
-                  Theme automatically adjusts based on timer mode (Work/Break)
+                  Theme colors automatically adjust based on timer mode (Work/Break)
                 </div>
               </section>
 

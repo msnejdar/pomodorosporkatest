@@ -8,6 +8,7 @@ export interface TimerSettings {
   cycles: number;
   volume: number; // 0-1
   soundEnabled: boolean;
+  darkMode: boolean;
 }
 
 export interface TimerState {

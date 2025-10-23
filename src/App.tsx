@@ -147,10 +147,19 @@ function App() {
 
   const totalDuration = mode === 'work' ? settings.workDuration * 60 : settings.breakDuration * 60;
 
+  // Apply dark mode class to document
+  useEffect(() => {
+    if (settings.darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [settings.darkMode]);
+
   return (
-    <div className="relative min-h-screen w-full overflow-hidden">
+    <div className={`relative min-h-screen w-full overflow-hidden ${settings.darkMode ? 'dark bg-gray-900' : ''}`}>
       {/* Animated Background */}
-      <Background mode={mode} />
+      <Background mode={mode} darkMode={settings.darkMode} />
 
       {/* Main Content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-4">

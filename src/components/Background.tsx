@@ -4,13 +4,14 @@ import { TimerMode } from '../types';
 
 interface BackgroundProps {
   mode: TimerMode;
+  darkMode?: boolean;
 }
 
-export function Background({ mode }: BackgroundProps) {
+export function Background({ mode, darkMode = false }: BackgroundProps) {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden">
       <motion.div
-        key={mode}
+        key={`${mode}-${darkMode}`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -18,6 +19,17 @@ export function Background({ mode }: BackgroundProps) {
         className="absolute inset-0"
       >
         {mode === 'work' ? <WorkBackground /> : <BreakBackground />}
+
+        {/* Dark mode overlay */}
+        {darkMode && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.7 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute inset-0 bg-black pointer-events-none"
+          />
+        )}
       </motion.div>
     </div>
   );

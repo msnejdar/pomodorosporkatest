@@ -50,6 +50,20 @@ export const CONFETTI_COLORS = [
   COLORS.darkTeal,
 ];
 
+// Dark mode colors - inverted palette for dark theme
+export const DARK_COLORS = {
+  deepBlue: '#E9D8A6',      // Light beige text on dark
+  darkTeal: '#94D2BD',      // Light teal for headers
+  teal: '#0A9396',          // Keep teal (works on dark)
+  lightTeal: '#005F73',     // Darker teal for contrast
+  beige: '#1A1A1A',         // Dark background instead of light
+  gold: '#EE9B00',          // Keep gold (bright on dark)
+  darkOrange: '#CA6702',    // Keep dark orange
+  rust: '#BB3E03',          // Keep rust
+  darkRed: '#AE2012',       // Keep dark red
+  burgundy: '#9B2226',      // Keep burgundy
+} as const;
+
 // Default timer settings
 export const DEFAULT_SETTINGS = {
   workDuration: 25, // minutes
@@ -57,6 +71,7 @@ export const DEFAULT_SETTINGS = {
   cycles: 4,
   volume: 0.7,
   soundEnabled: true,
+  darkMode: false,
 };
 
 // Sound URLs (we'll use browser notification sound for now)
