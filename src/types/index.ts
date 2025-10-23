@@ -9,6 +9,7 @@ export interface TimerSettings {
   volume: number; // 0-1
   soundEnabled: boolean;
   darkMode: boolean;
+  language: 'en' | 'cs';
 }
 
 export interface TimerState {

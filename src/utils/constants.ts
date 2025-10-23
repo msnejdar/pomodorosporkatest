@@ -72,6 +72,7 @@ export const DEFAULT_SETTINGS = {
   volume: 0.7,
   soundEnabled: true,
   darkMode: false,
+  language: 'en' as 'en' | 'cs',
 };
 
 // Sound URLs (we'll use browser notification sound for now)

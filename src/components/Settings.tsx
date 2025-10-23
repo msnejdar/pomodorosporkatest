@@ -1,7 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Volume2, VolumeX } from 'lucide-react';
+import { X, Volume2, VolumeX, Globe } from 'lucide-react';
 import { TimerSettings } from '../types';
 import { COLORS } from '../utils/constants';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface SettingsProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface SettingsProps {
 }
 
 export function Settings({ isOpen, onClose, settings, onUpdateSettings }: SettingsProps) {
+  const { t } = useTranslation(settings.language);
   return (
     <AnimatePresence>
       {isOpen && (
@@ -45,7 +47,7 @@ export function Settings({ isOpen, onClose, settings, onUpdateSettings }: Settin
                   className="text-2xl font-bold"
                   style={{ color: COLORS.deepBlue }}
                 >
-                  Settings
+                  {t('settings')}
                 </h2>
                 <button
                   onClick={onClose}
@@ -56,13 +58,13 @@ export function Settings({ isOpen, onClose, settings, onUpdateSettings }: Settin
                 </button>
               </div>
 
-              {/* Timer Settings Section */}
+              {/* {t('timerSettings')} Section */}
               <section className="mb-8">
                 <h3
                   className="text-lg font-semibold mb-4"
                   style={{ color: COLORS.darkTeal }}
                 >
-                  ⚙️ Timer Settings
+                  ⚙️ {t('timerSettings')}
                 </h3>
 
                 {/* Work Duration */}
@@ -71,7 +73,7 @@ export function Settings({ isOpen, onClose, settings, onUpdateSettings }: Settin
                     className="block text-sm font-medium mb-2"
                     style={{ color: COLORS.deepBlue }}
                   >
-                    Work Duration (minutes)
+                    {t('workDuration')}
                   </label>
                   <input
                     type="number"
@@ -103,7 +105,7 @@ export function Settings({ isOpen, onClose, settings, onUpdateSettings }: Settin
                     className="block text-sm font-medium mb-2"
                     style={{ color: COLORS.deepBlue }}
                   >
-                    Break Duration (minutes)
+                    {t('breakDuration')}
                   </label>
                   <input
                     type="number"
@@ -135,7 +137,7 @@ export function Settings({ isOpen, onClose, settings, onUpdateSettings }: Settin
                     className="block text-sm font-medium mb-2"
                     style={{ color: COLORS.deepBlue }}
                   >
-                    Number of Cycles
+                    {t('numberOfCycles')}
                   </label>
                   <input
                     type="number"
@@ -268,11 +270,33 @@ export function Settings({ isOpen, onClose, settings, onUpdateSettings }: Settin
                   </button>
                 </div>
 
+                {/* Language Selector */}
+                <div className="flex items-center justify-between p-4 rounded-xl mb-4" style={{ backgroundColor: `${COLORS.beige}80` }}>
+                  <div className="flex items-center gap-3">
+                    <Globe size={20} style={{ color: COLORS.rust }} />
+                    <span className="font-medium" style={{ color: COLORS.deepBlue }}>
+                      {t('language')}
+                    </span>
+                  </div>
+                  <select
+                    value={settings.language}
+                    onChange={(e) => onUpdateSettings({ language: e.target.value as 'en' | 'cs' })}
+                    className="px-4 py-2 rounded-xl border-2 bg-white/50 backdrop-blur-sm cursor-pointer"
+                    style={{
+                      borderColor: COLORS.rust,
+                      color: COLORS.deepBlue,
+                    }}
+                  >
+                    <option value="en">{t('english')}</option>
+                    <option value="cs">{t('czech')}</option>
+                  </select>
+                </div>
+
                 <div
                   className="p-4 rounded-xl text-sm"
                   style={{ backgroundColor: `${COLORS.lightTeal}20`, color: COLORS.deepBlue }}
                 >
-                  Theme colors automatically adjust based on timer mode (Work/Break)
+                  {t('themeAdjusts')}
                 </div>
               </section>
 
