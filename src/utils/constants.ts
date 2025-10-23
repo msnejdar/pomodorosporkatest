@@ -89,3 +89,100 @@ export const ANIMATION = {
   modeTransition: 500,
   slideIn: 300,
 };
+
+// Task Categories with colors and icons
+export const CATEGORIES = [
+  { id: 'work' as const, name: 'Work', icon: '💼', color: COLORS.darkTeal },
+  { id: 'study' as const, name: 'Study', icon: '📚', color: COLORS.gold },
+  { id: 'code' as const, name: 'Coding', icon: '💻', color: COLORS.teal },
+  { id: 'read' as const, name: 'Reading', icon: '📖', color: COLORS.rust },
+  { id: 'design' as const, name: 'Design', icon: '🎨', color: COLORS.lightTeal },
+  { id: 'meeting' as const, name: 'Meeting', icon: '👥', color: COLORS.darkOrange },
+  { id: 'other' as const, name: 'Other', icon: '📝', color: COLORS.burgundy },
+];
+
+// Default Goals
+export const DEFAULT_GOALS = {
+  dailyTarget: 8,
+  weeklyTarget: 40,
+};
+
+// Break recommendations
+export const BREAK_ACTIVITIES = {
+  short: [
+    { id: 'water', icon: '💧', text: 'Drink water' },
+    { id: 'stretch', icon: '🤸', text: 'Stretch your body' },
+    { id: 'eyes', icon: '👀', text: 'Rest your eyes' },
+    { id: 'walk', icon: '🚶', text: 'Take a short walk' },
+  ],
+  long: [
+    { id: 'exercise', icon: '🏃', text: 'Light exercise' },
+    { id: 'snack', icon: '🍎', text: 'Healthy snack' },
+    { id: 'meditation', icon: '🧘', text: 'Meditate' },
+    { id: 'fresh_air', icon: '🌳', text: 'Get fresh air' },
+  ],
+};
+
+// Achievement definitions
+export const ACHIEVEMENTS_DATA = [
+  {
+    id: 'first_pomodoro' as const,
+    name: 'First Steps',
+    description: 'Complete your first pomodoro',
+    icon: '🍅',
+  },
+  {
+    id: 'total_10' as const,
+    name: 'Getting Started',
+    description: 'Complete 10 pomodoros',
+    icon: '🎯',
+  },
+  {
+    id: 'total_50' as const,
+    name: 'Dedicated',
+    description: 'Complete 50 pomodoros',
+    icon: '⭐',
+  },
+  {
+    id: 'total_100' as const,
+    name: 'Century',
+    description: 'Complete 100 pomodoros',
+    icon: '💯',
+  },
+  {
+    id: 'total_500' as const,
+    name: 'Master',
+    description: 'Complete 500 pomodoros',
+    icon: '👑',
+  },
+  {
+    id: 'streak_3' as const,
+    name: 'Consistency',
+    description: 'Work 3 days in a row',
+    icon: '🔥',
+  },
+  {
+    id: 'streak_7' as const,
+    name: 'Week Warrior',
+    description: 'Work 7 days in a row',
+    icon: '💪',
+  },
+  {
+    id: 'streak_30' as const,
+    name: 'Monthly Master',
+    description: 'Work 30 days in a row',
+    icon: '🏆',
+  },
+  {
+    id: 'early_bird' as const,
+    name: 'Early Bird',
+    description: 'Complete pomodoro before 8 AM',
+    icon: '🌅',
+  },
+  {
+    id: 'night_owl' as const,
+    name: 'Night Owl',
+    description: 'Complete pomodoro after 10 PM',
+    icon: '🌙',
+  },
+];

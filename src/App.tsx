@@ -9,26 +9,40 @@ import { Settings } from './components/Settings';
 import { Confetti } from './components/Confetti';
 import { AnimatedSun } from './components/AnimatedSun';
 import { KeyboardHints } from './components/KeyboardHints';
+import { CategorySelector } from './components/CategorySelector';
+import { Goals } from './components/Goals';
+import { Achievements } from './components/Achievements';
+import { PomodoroLog } from './components/PomodoroLog';
+import { SmartBreak } from './components/SmartBreak';
 import { useTimer } from './hooks/useTimer';
 import { useSound } from './hooks/useSound';
 import { useKeyboard } from './hooks/useKeyboard';
 import { useLocalStorage } from './hooks/useLocalStorage';
-import { DEFAULT_SETTINGS } from './utils/constants';
-import { Stats as StatsType } from './types';
+import { DEFAULT_SETTINGS, ACHIEVEMENTS_DATA } from './utils/constants';
+import { ExtendedStats, TaskCategory, PomodoroEntry } from './types';
 
 function App() {
   const [settings, setSettings] = useLocalStorage('pomodoro-settings', DEFAULT_SETTINGS);
-  const [stats, setStats] = useLocalStorage<StatsType>('pomodoro-stats', {
+  const [stats, setStats] = useLocalStorage<ExtendedStats>('pomodoro-stats', {
     pomodorosToday: 0,
     totalFocusTime: 0,
     currentStreak: 0,
     cyclesCompleted: 0,
     lastCompletedDate: new Date().toISOString().split('T')[0],
+    categoryStats: { work: 0, study: 0, code: 0, read: 0, design: 0, meeting: 0, other: 0 },
+    pomodoroLog: [],
+    goals: { dailyTarget: 8, weeklyTarget: 40 },
+    achievements: ACHIEVEMENTS_DATA.map((a) => ({ ...a, unlocked: false })),
   });
 
   const [showSettings, setShowSettings] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showSun, setShowSun] = useState(false);
+  const [showCategorySelector, setShowCategorySelector] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<TaskCategory>('work');
+  const [taskName, setTaskName] = useState('');
+  const [showSmartBreak, setShowSmartBreak] = useState(false);
+  const [currentPomodoroId, setCurrentPomodoroId] = useState<string | null>(null);
 
   const { play: playSound, setVolume } = useSound(settings.soundEnabled, settings.volume);
 
@@ -61,26 +75,75 @@ function App() {
   const handleWorkComplete = useCallback(() => {
     playSound();
     const today = new Date().toISOString().split('T')[0];
+    const now = new Date().toISOString();
 
     setStats((prev) => {
       const isNewDay = prev.lastCompletedDate !== today;
+
+      // Complete the current pomodoro entry
+      const updatedLog = prev.pomodoroLog.map((entry) =>
+        entry.id === currentPomodoroId
+          ? { ...entry, completed: true, endTime: now }
+          : entry
+      );
+
+      // Update category stats
+      const currentEntry = updatedLog.find((e) => e.id === currentPomodoroId);
+      const updatedCategoryStats = { ...prev.categoryStats };
+      if (currentEntry) {
+        updatedCategoryStats[currentEntry.category] += settings.workDuration;
+      }
+
+      // Check and unlock achievements
+      const newPomodoroCount = isNewDay ? 1 : prev.pomodorosToday + 1;
+      const newTotalPomodoros = updatedLog.filter((e) => e.completed).length;
+      const newStreak = isNewDay ? prev.currentStreak + 1 : prev.currentStreak;
+
+      const updatedAchievements = prev.achievements.map((achievement) => {
+        if (achievement.unlocked) return achievement;
+
+        let shouldUnlock = false;
+        if (achievement.id === 'first_pomodoro' && newTotalPomodoros >= 1) shouldUnlock = true;
+        if (achievement.id === 'total_10' && newTotalPomodoros >= 10) shouldUnlock = true;
+        if (achievement.id === 'total_50' && newTotalPomodoros >= 50) shouldUnlock = true;
+        if (achievement.id === 'total_100' && newTotalPomodoros >= 100) shouldUnlock = true;
+        if (achievement.id === 'total_500' && newTotalPomodoros >= 500) shouldUnlock = true;
+        if (achievement.id === 'streak_3' && newStreak >= 3) shouldUnlock = true;
+        if (achievement.id === 'streak_7' && newStreak >= 7) shouldUnlock = true;
+        if (achievement.id === 'streak_30' && newStreak >= 30) shouldUnlock = true;
+
+        return shouldUnlock ? { ...achievement, unlocked: true, unlockedAt: now } : achievement;
+      });
+
       return {
         ...prev,
-        pomodorosToday: isNewDay ? 1 : prev.pomodorosToday + 1,
+        pomodorosToday: newPomodoroCount,
         totalFocusTime: prev.totalFocusTime + settings.workDuration,
-        currentStreak: isNewDay ? prev.currentStreak + 1 : prev.currentStreak,
+        currentStreak: newStreak,
         lastCompletedDate: today,
+        categoryStats: updatedCategoryStats,
+        pomodoroLog: updatedLog,
+        achievements: updatedAchievements,
       };
     });
 
     // Show celebration
     setShowSun(true);
     setTimeout(() => setShowSun(false), 3000);
-  }, [playSound, settings.workDuration, setStats]);
+
+    // Reset current pomodoro
+    setCurrentPomodoroId(null);
+  }, [playSound, settings.workDuration, setStats, currentPomodoroId]);
 
   const handleBreakComplete = useCallback(() => {
     playSound();
-  }, [playSound]);
+
+    // Check if it's time for a long break (every 4 pomodoros)
+    const completedPomodoros = stats.pomodoroLog.filter((e) => e.completed).length;
+    if (completedPomodoros > 0 && completedPomodoros % 4 === 0) {
+      setShowSmartBreak(true);
+    }
+  }, [playSound, stats.pomodoroLog]);
 
   const handleCycleComplete = useCallback(() => {
     playSound();
@@ -110,6 +173,57 @@ function App() {
     updateSettings,
   } = useTimer(settings, handleWorkComplete, handleBreakComplete, handleCycleComplete);
 
+  const handleStartWithCategory = useCallback(() => {
+    // Create a new pomodoro entry
+    const newEntry: PomodoroEntry = {
+      id: Date.now().toString(),
+      category: selectedCategory,
+      taskName: taskName || undefined,
+      startTime: new Date().toISOString(),
+      endTime: '',
+      duration: settings.workDuration,
+      completed: false,
+    };
+
+    setStats((prev) => ({
+      ...prev,
+      pomodoroLog: [...prev.pomodoroLog, newEntry],
+    }));
+
+    setCurrentPomodoroId(newEntry.id);
+    setShowCategorySelector(false);
+    setTaskName('');
+    start();
+  }, [selectedCategory, taskName, settings.workDuration, setStats, start]);
+
+  const handleExportCSV = useCallback(() => {
+    const csv = [
+      'Date,Time,Category,Task,Duration,Status',
+      ...stats.pomodoroLog.map((entry) => {
+        const date = new Date(entry.startTime).toLocaleDateString();
+        const time = new Date(entry.startTime).toLocaleTimeString();
+        return `${date},${time},${entry.category},"${entry.taskName || ''}",${entry.duration},${entry.completed ? 'Completed' : 'Cancelled'}`;
+      }),
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pomodoro-log-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+  }, [stats.pomodoroLog]);
+
+  const handleExportJSON = useCallback(() => {
+    const json = JSON.stringify(stats.pomodoroLog, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pomodoro-log-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+  }, [stats.pomodoroLog]);
+
   const handleUpdateSettings = useCallback(
     (newSettings: Partial<typeof settings>) => {
       const updated = { ...settings, ...newSettings };
@@ -126,16 +240,23 @@ function App() {
       currentStreak: 0,
       cyclesCompleted: 0,
       lastCompletedDate: new Date().toISOString().split('T')[0],
+      categoryStats: { work: 0, study: 0, code: 0, read: 0, design: 0, meeting: 0, other: 0 },
+      pomodoroLog: [],
+      goals: { dailyTarget: 8, weeklyTarget: 40 },
+      achievements: ACHIEVEMENTS_DATA.map((a) => ({ ...a, unlocked: false })),
     });
   }, [setStats]);
 
   const toggleStartPause = useCallback(() => {
     if (status === 'running') {
       pause();
+    } else if (status === 'idle' && mode === 'work') {
+      // Show category selector before starting
+      setShowCategorySelector(true);
     } else {
       start();
     }
-  }, [status, start, pause]);
+  }, [status, mode, start, pause]);
 
   // Keyboard shortcuts
   useKeyboard({
@@ -180,8 +301,53 @@ function App() {
             <KeyboardHints language={settings.language} />
           </div>
 
+          {/* Category Selector */}
+          {showCategorySelector && (
+            <CategorySelector
+              selectedCategory={selectedCategory}
+              onSelect={setSelectedCategory}
+              onStartWithCategory={handleStartWithCategory}
+              taskName={taskName}
+              onTaskNameChange={setTaskName}
+            />
+          )}
+
+          {/* Smart Break Recommendation */}
+          {showSmartBreak && (
+            <SmartBreak
+              isLongBreak={stats.pomodorosToday % 4 === 0}
+              completedPomodoros={stats.pomodorosToday}
+              onAccept={() => {
+                setShowSmartBreak(false);
+                start();
+              }}
+              onSkip={() => setShowSmartBreak(false)}
+            />
+          )}
+
+          {/* Goals */}
+          <Goals
+            goals={stats.goals}
+            dailyCompleted={stats.pomodorosToday}
+            weeklyCompleted={stats.pomodoroLog.filter((e) => {
+              const weekAgo = new Date();
+              weekAgo.setDate(weekAgo.getDate() - 7);
+              return e.completed && new Date(e.startTime) >= weekAgo;
+            }).length}
+          />
+
           {/* Stats */}
           <Stats stats={stats} onReset={handleResetStats} language={settings.language} />
+
+          {/* Achievements */}
+          <Achievements achievements={stats.achievements} />
+
+          {/* Pomodoro Log */}
+          <PomodoroLog
+            entries={stats.pomodoroLog}
+            onExportCSV={handleExportCSV}
+            onExportJSON={handleExportJSON}
+          />
         </div>
       </div>
 
