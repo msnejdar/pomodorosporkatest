@@ -46,6 +46,34 @@ function App() {
 
   const { play: playSound, setVolume } = useSound(settings.soundEnabled, settings.volume);
 
+  // Migrate old stats data to new ExtendedStats format
+  useEffect(() => {
+    setStats((prev) => {
+      let needsUpdate = false;
+      const updated = { ...prev };
+
+      // Add missing fields with defaults
+      if (!updated.categoryStats) {
+        updated.categoryStats = { work: 0, study: 0, code: 0, read: 0, design: 0, meeting: 0, other: 0 };
+        needsUpdate = true;
+      }
+      if (!updated.pomodoroLog) {
+        updated.pomodoroLog = [];
+        needsUpdate = true;
+      }
+      if (!updated.goals) {
+        updated.goals = { dailyTarget: 8, weeklyTarget: 40 };
+        needsUpdate = true;
+      }
+      if (!updated.achievements) {
+        updated.achievements = ACHIEVEMENTS_DATA.map((a) => ({ ...a, unlocked: false }));
+        needsUpdate = true;
+      }
+
+      return needsUpdate ? updated : prev;
+    });
+  }, [setStats]);
+
   // Update sound volume when settings change
   useEffect(() => {
     setVolume(settings.volume);
@@ -139,9 +167,11 @@ function App() {
     playSound();
 
     // Check if it's time for a long break (every 4 pomodoros)
-    const completedPomodoros = stats.pomodoroLog.filter((e) => e.completed).length;
-    if (completedPomodoros > 0 && completedPomodoros % 4 === 0) {
-      setShowSmartBreak(true);
+    if (stats.pomodoroLog) {
+      const completedPomodoros = stats.pomodoroLog.filter((e) => e.completed).length;
+      if (completedPomodoros > 0 && completedPomodoros % 4 === 0) {
+        setShowSmartBreak(true);
+      }
     }
   }, [playSound, stats.pomodoroLog]);
 
@@ -197,6 +227,8 @@ function App() {
   }, [selectedCategory, taskName, settings.workDuration, setStats, start]);
 
   const handleExportCSV = useCallback(() => {
+    if (!stats.pomodoroLog) return;
+
     const csv = [
       'Date,Time,Category,Task,Duration,Status',
       ...stats.pomodoroLog.map((entry) => {
@@ -215,6 +247,8 @@ function App() {
   }, [stats.pomodoroLog]);
 
   const handleExportJSON = useCallback(() => {
+    if (!stats.pomodoroLog) return;
+
     const json = JSON.stringify(stats.pomodoroLog, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -326,28 +360,32 @@ function App() {
           )}
 
           {/* Goals */}
-          <Goals
-            goals={stats.goals}
-            dailyCompleted={stats.pomodorosToday}
-            weeklyCompleted={stats.pomodoroLog.filter((e) => {
-              const weekAgo = new Date();
-              weekAgo.setDate(weekAgo.getDate() - 7);
-              return e.completed && new Date(e.startTime) >= weekAgo;
-            }).length}
-          />
+          {stats.goals && stats.pomodoroLog && (
+            <Goals
+              goals={stats.goals}
+              dailyCompleted={stats.pomodorosToday}
+              weeklyCompleted={stats.pomodoroLog.filter((e) => {
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                return e.completed && new Date(e.startTime) >= weekAgo;
+              }).length}
+            />
+          )}
 
           {/* Stats */}
           <Stats stats={stats} onReset={handleResetStats} language={settings.language} />
 
           {/* Achievements */}
-          <Achievements achievements={stats.achievements} />
+          {stats.achievements && <Achievements achievements={stats.achievements} />}
 
           {/* Pomodoro Log */}
-          <PomodoroLog
-            entries={stats.pomodoroLog}
-            onExportCSV={handleExportCSV}
-            onExportJSON={handleExportJSON}
-          />
+          {stats.pomodoroLog && (
+            <PomodoroLog
+              entries={stats.pomodoroLog}
+              onExportCSV={handleExportCSV}
+              onExportJSON={handleExportJSON}
+            />
+          )}
         </div>
       </div>
 
